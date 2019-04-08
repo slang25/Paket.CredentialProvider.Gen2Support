@@ -38,15 +38,15 @@ let impl argv =
                                    CancellationToken.None
                                ) |> Async.AwaitTask |> Async.RunSynchronously
 
-    if not (isNull provider.Credentials) then 
-        let credentials = provider.Credentials.GetCredential(givenUri, "Basic")
+    match Option.ofObj provider.Credentials with
+    | Some credentials ->
+        let credentials =  credentials.GetCredential(givenUri, "Basic")
         printfn """
 { "Username" : "%s",
 "Password" : "%s",
 "Message"  : "" }""" credentials.UserName credentials.Password
         0
-    else
-        1
+    | None -> 1
 
 [<EntryPoint>]
 let main argv =
