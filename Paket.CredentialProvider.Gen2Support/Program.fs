@@ -22,23 +22,26 @@ let impl argv =
         | Some givenUriStr -> System.Uri givenUriStr
         | None -> failwithf "the -uri argument is required"
     
-    let plugin =
+    let plugins =
         SecurePluginCredentialProviderBuilder(pluginManager = NuGet.Protocol.Core.Types.PluginManager.Instance,
                                               canShowDialog= true,
                                               logger = NullLogger.Instance).BuildAllAsync()
         |> Async.AwaitTask |> Async.RunSynchronously :> seq<_>
-        |> Seq.find (not << isNull)
+        |> Seq.filter (not << isNull)
 
-    let provider = plugin.GetAsync(givenUri,
-                                   Unchecked.defaultof<_>,
-                                   CredentialRequestType.Unauthorized,
-                                   "",
-                                   false,
-                                   false,
-                                   CancellationToken.None
-                               ) |> Async.AwaitTask |> Async.RunSynchronously
+    let credentials =
+        plugins
+        |> Seq.choose (fun p -> (p.GetAsync(givenUri,
+                                              Unchecked.defaultof<_>,
+                                              CredentialRequestType.Unauthorized,
+                                              "",
+                                              false,
+                                              false,
+                                              CancellationToken.None
+                                            ) |> Async.AwaitTask |> Async.RunSynchronously).Credentials |> Option.ofObj)
+        |> Seq.tryHead
 
-    match Option.ofObj provider.Credentials with
+    match credentials with
     | Some credentials ->
         let credentials =  credentials.GetCredential(givenUri, "Basic")
         printfn """
