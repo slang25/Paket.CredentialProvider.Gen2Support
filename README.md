@@ -14,7 +14,9 @@ Paket added Gen 1 provider support, and in addition supported .NET Core by chang
 
 The NuGet team realised they needed .NET Core support, and cross-plat support. At the same time, they wanted to tackle [NuGets plugin architecture](https://docs.microsoft.com/en-us/nuget/reference/extensibility/nuget-cross-platform-plugins), plugin trust and more. The result was a more complex system, where there is a JSON protocol over stdin/stdout with handshakes and all sorts.
 
-Paket has yet to adopt this new mechanism.
+Paket has yet to adopt Gen 2 credential providers.
+
+## Providers and Support
 
 | Provider                       | Gen    | Windows Support | macOS Support | ADO Distributed | NuGet Client Support | Paket Support |
 |--------------------------------|--------|-----------------|---------------|-----------------|----------------------|---------------|
@@ -22,7 +24,7 @@ Paket has yet to adopt this new mechanism.
 | CredentialProvider.Microsoft   | Gen 2  | :heavy_check_mark: | :heavy_check_mark: |                 | :heavy_check_mark: |               |
 | CredentialProvider.Gen2Support | Gen 1  | :heavy_check_mark: | :heavy_check_mark: |                 | Going soon           | :heavy_check_mark: |
 
-## This Shim
+## This Provider
 
 This package acts as a shim by implementing a Gen 1 provider, that talks to Gen 2 providers. It has knowledge of the Azure Artifacts Credential Provider so that under non-Windows it can ask you to run the appropriate command to authenticate.
 
