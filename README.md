@@ -21,7 +21,7 @@ Paket has yet to adopt Gen 2 credential providers.
 | Provider                       | Gen    | Windows Support | macOS Support | ADO Distributed | NuGet Client Support | Paket Support |
 |--------------------------------|:------:|:---------------:|:-------------:|:---------------:|:--------------------:|:-------------:|
 | CredentialProvider.VSS         | Gen 1  | :heavy_check_mark: | :x:           | :heavy_check_mark: | Going soon           | :heavy_check_mark: |
-| CredentialProvider.Microsoft   | Gen 2  | :heavy_check_mark: | :heavy_check_mark: | :x:             | :heavy_check_mark: | :x:           |
+| CredentialProvider.Microsoft   | Gen 2  | :heavy_check_mark: | :heavy_check_mark: | Coming soon    | :heavy_check_mark: | :x:           |
 | CredentialProvider.Gen2Support | Gen 1  | :heavy_check_mark: | :heavy_check_mark: | :x:             | Going soon           | :heavy_check_mark: |
 
 ## This Provider
