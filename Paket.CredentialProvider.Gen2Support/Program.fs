@@ -3,6 +3,7 @@ open System.Threading
 open NuGet.Common
 open NuGet.Configuration
 open NuGet.Credentials
+open NuGet.Protocol.Core.Types
 
 let tryGetArg (name : string) (argv : string array) =
     let lowerName = name.ToLowerInvariant()
@@ -24,12 +25,12 @@ let impl argv =
         | None -> failwithf "the -uri argument is required"
 
     let hasFlag (flag : string) =
-        argv |> Seq.exists (fun s -> s.ToLowerInvariant() = flag.ToLowerInvariant())
+        argv |> Seq.exists (fun s -> s.Equals(flag, StringComparison.InvariantCultureIgnoreCase))
     let nonInteractive = hasFlag "nonInteractive"
     let isRetry = hasFlag "isRetry"
 
     let plugins =
-        SecurePluginCredentialProviderBuilder(pluginManager = NuGet.Protocol.Core.Types.PluginManager.Instance, canShowDialog = true, logger = NullLogger.Instance)
+        SecurePluginCredentialProviderBuilder(pluginManager = PluginManager.Instance, canShowDialog = true, logger = NullLogger.Instance)
             .BuildAllAsync()
         |> Async.AwaitTask
         |> Async.RunSynchronously
@@ -38,12 +39,47 @@ let impl argv =
     let credentials =
         plugins
         |> Seq.choose (fun p ->
-               (p.GetAsync
+                let isAzureProvider =  p.Id.EndsWith("CredentialProvider.Microsoft.dll")
+                p.GetAsync
                     (givenUri, Unchecked.defaultof<_>, CredentialRequestType.Unauthorized, "",
-                     isRetry, nonInteractive, CancellationToken.None)
+                     isRetry, isAzureProvider || nonInteractive, CancellationToken.None)
                 |> Async.AwaitTask
-                |> Async.RunSynchronously).Credentials
-               |> Option.ofObj)
+                |> Async.RunSynchronously
+                |> Option.ofObj
+                |> Option.bind (fun c ->
+                    let isAzureUri (uri:Uri) =
+                        [
+                            ".pkgs.vsts.me" // DevFabric
+                            ".pkgs.codedev.ms" // DevFabric
+                            ".pkgs.codeapp.ms" // AppFabric
+                            ".pkgs.visualstudio.com" // Prod
+                            ".pkgs.dev.azure.com" // Prod
+                        ] |> List.exists (fun h -> uri.Host.EndsWith(h))
+                        
+                    if isAzureProvider && (isNull c.Credentials) && (isAzureUri givenUri) then
+                        let path =
+                            PluginManager.Instance.FindAvailablePluginsAsync(CancellationToken.None)
+                            |> Async.AwaitTask |> Async.RunSynchronously
+                            |> Seq.map (fun p -> p.PluginFile.Path)
+                            |> Seq.find (fun path -> path.EndsWith("CredentialProvider.Microsoft.dll"))
+                        
+                        let message =
+                            let singleLine = Environment.NewLine
+                            let doubleLine = singleLine + singleLine
+                            let uri = givenUri.ToString()
+                            let command = sprintf "dotnet %s -uri %s" path uri
+                            let instruction = sprintf "%sIn order to authenticate to %s you must first run:%s%s%s" doubleLine uri doubleLine command doubleLine
+                            let divider = "    **********************************************************************"
+                            sprintf "%sATTENTION: User interaction required.%s%s%s%s%s" doubleLine singleLine divider instruction divider doubleLine
+
+                        printf """
+{ "Username" : "",
+"Password" : "",
+"Message" : "%s" }"""    message
+                        exit 2
+                        None 
+                    else
+                        c.Credentials |> Option.ofObj))
         |> Seq.tryHead
 
     match credentials with
@@ -52,7 +88,7 @@ let impl argv =
         printfn """
 { "Username" : "%s",
 "Password" : "%s",
-"Message"  : "" }""" credentials.UserName credentials.Password
+"Message" : "" }""" credentials.UserName credentials.Password
         0
     | None -> 1
 
@@ -67,6 +103,7 @@ let main argv =
     finally
         Console.Out.Flush()
         Console.Error.Flush()
+        
 //    // Example of talking to lower API, if this were to move into Paket I think we would drop down to this
 //    let credProviderPath = "/Users/stuart/Downloads/Microsoft.NetCore2.NuGet.CredentialProvider (1)/plugins/netcore/CredentialProvider.Microsoft"
 //    let startInfo = ProcessStartInfo(
