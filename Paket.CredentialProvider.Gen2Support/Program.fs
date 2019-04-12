@@ -17,6 +17,32 @@ let tryGetArg (name : string) (argv : string array) =
            if argv.Length > i + 1 then argv.[i + 1]
            else failwithf "Argument for '%s' is missing" argv.[i])
 
+let handleAzureCredentials (givenUri:Uri) =
+    let path =
+        PluginManager.Instance.FindAvailablePluginsAsync(CancellationToken.None)
+        |> Async.AwaitTask |> Async.RunSynchronously
+        |> Seq.map (fun p -> p.PluginFile.Path)
+        |> Seq.find (fun path -> path.EndsWith("CredentialProvider.Microsoft.dll"))
+    
+    let message =
+        let singleLine = Environment.NewLine
+        let doubleLine = singleLine + singleLine
+        let uri = givenUri.ToString()
+        let command = sprintf "dotnet %s -uri %s" path uri
+        let instruction = sprintf "%sIn order to authenticate to %s you must first run:%s%s%s" doubleLine uri doubleLine command doubleLine
+        let divider = "    **********************************************************************"
+        doubleLine
+        + "ATTENTION: User interaction required." + singleLine
+        + divider
+        + instruction
+        + divider + doubleLine
+
+    printf """
+{ "Username" : "",
+"Password" : "",
+"Message" : "%s" }""" message
+    exit 2
+
 let impl argv =
     Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", "dotnet")
     let givenUri =
@@ -57,26 +83,7 @@ let impl argv =
                         ] |> List.exists (fun h -> uri.Host.EndsWith(h))
                         
                     if isAzureProvider && (isNull c.Credentials) && (isAzureUri givenUri) then
-                        let path =
-                            PluginManager.Instance.FindAvailablePluginsAsync(CancellationToken.None)
-                            |> Async.AwaitTask |> Async.RunSynchronously
-                            |> Seq.map (fun p -> p.PluginFile.Path)
-                            |> Seq.find (fun path -> path.EndsWith("CredentialProvider.Microsoft.dll"))
-                        
-                        let message =
-                            let singleLine = Environment.NewLine
-                            let doubleLine = singleLine + singleLine
-                            let uri = givenUri.ToString()
-                            let command = sprintf "dotnet %s -uri %s" path uri
-                            let instruction = sprintf "%sIn order to authenticate to %s you must first run:%s%s%s" doubleLine uri doubleLine command doubleLine
-                            let divider = "    **********************************************************************"
-                            sprintf "%sATTENTION: User interaction required.%s%s%s%s%s" doubleLine singleLine divider instruction divider doubleLine
-
-                        printf """
-{ "Username" : "",
-"Password" : "",
-"Message" : "%s" }"""    message
-                        exit 2
+                        handleAzureCredentials givenUri
                         None 
                     else
                         c.Credentials |> Option.ofObj))
