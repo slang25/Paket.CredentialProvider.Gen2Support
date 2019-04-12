@@ -27,3 +27,14 @@ Paket has yet to adopt this new mechanism.
 This package acts as a shim by implementing a Gen 1 provider, that talks to Gen 2 providers. It has knowledge of the Azure Artifacts Credential Provider so that under non-Windows it can ask you to run the appropriate command to authenticate.
 
 This shim solves the problem of adopting Gen 2 pacakges with Paket while the eco-systems align.
+
+## Installation
+
+### macOS
+
+Create a folder named CredentialProviders under:
+`$HOME/.local/share/NuGet`
+
+Download the latest `CredentialProvider.Gen2Support.zip` from the releases tab and unzip the contents of into it.
+
+Be sure to have installed the Azure Artifacts Credential Provider, under `$HOME/.nuget/plugins`.
