@@ -18,9 +18,9 @@ Paket has yet to adopt this new mechanism.
 
 | Provider                       | Gen   | Windows Support | macOS Support | ADO Distributed | NuGet Client Support | Paket Support |
 |--------------------------------|-------|-----------------|---------------|-----------------|----------------------|---------------|
-| CredentialProvider.VSS         | Gen 1 | x               |               | x               | Going soon           | x             |
-| CredentialProvider.Microsoft   | Gen 2 | x               | x             |                 | x                    |               |
-| CredentialProvider.Gen2Support | Gen 1 | x               | x             |                 | Going soon           | x             |
+| CredentialProvider.VSS         | Gen 1 | :heavy_check_mark: |               | :heavy_check_mark: | Going soon           | :heavy_check_mark: |
+| CredentialProvider.Microsoft   | Gen 2 | :heavy_check_mark: | :heavy_check_mark: |                 | :heavy_check_mark: |               |
+| CredentialProvider.Gen2Support | Gen 1 | :heavy_check_mark: | :heavy_check_mark: |                 | Going soon           | :heavy_check_mark: |
 
 ## This Shim
 
