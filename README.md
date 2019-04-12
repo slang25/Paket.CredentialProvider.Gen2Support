@@ -16,11 +16,11 @@ The NuGet team realised they needed .NET Core support, and cross-plat support. A
 
 Paket has yet to adopt this new mechanism.
 
-| Provider                       | Gen   | Windows Support | macOS Support | ADO Distributed | NuGet Client Support | Paket Support |
-|--------------------------------|-------|-----------------|---------------|-----------------|----------------------|---------------|
-| CredentialProvider.VSS         | Gen 1 | :heavy_check_mark: |               | :heavy_check_mark: | Going soon           | :heavy_check_mark: |
-| CredentialProvider.Microsoft   | Gen 2 | :heavy_check_mark: | :heavy_check_mark: |                 | :heavy_check_mark: |               |
-| CredentialProvider.Gen2Support | Gen 1 | :heavy_check_mark: | :heavy_check_mark: |                 | Going soon           | :heavy_check_mark: |
+| Provider                       | Gen    | Windows Support | macOS Support | ADO Distributed | NuGet Client Support | Paket Support |
+|--------------------------------|--------|-----------------|---------------|-----------------|----------------------|---------------|
+| CredentialProvider.VSS         | Gen 1  | :heavy_check_mark: |               | :heavy_check_mark: | Going soon           | :heavy_check_mark: |
+| CredentialProvider.Microsoft   | Gen 2  | :heavy_check_mark: | :heavy_check_mark: |                 | :heavy_check_mark: |               |
+| CredentialProvider.Gen2Support | Gen 1  | :heavy_check_mark: | :heavy_check_mark: |                 | Going soon           | :heavy_check_mark: |
 
 ## This Shim
 
