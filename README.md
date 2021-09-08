@@ -34,11 +34,15 @@ This shim solves the problem of adopting Gen 2 pacakges with Paket while the eco
 
 ## Installation
 
+Be sure to have installed the [Azure Artifacts Credential Provider](https://github.com/Microsoft/artifacts-credprovider), under `$HOME/.nuget/plugins`.
+
+### Windows
+* Ensure the following directory exists `%HOME%\AppData\Local\NuGet\CredentialProviders\Paket.CredentialProvider.Gen2Support`, creating any missing directories as necessary.
+* Download the latest `CredentialProvider.Gen2Support.zip` from the releases tab and unzip the contents of into it.
+
 ### macOS
 
-Create a folder named `CredentialProviders` under:
-`$HOME/.local/share/NuGet`
+* Create a folder named `CredentialProviders` under: `$HOME/.local/share/NuGet`
+* Download the latest `CredentialProvider.Gen2Support.zip` from the releases tab and unzip the contents of into it.
 
-Download the latest `CredentialProvider.Gen2Support.zip` from the releases tab and unzip the contents of into it.
 
-Be sure to have installed the [Azure Artifacts Credential Provider](https://github.com/Microsoft/artifacts-credprovider), under `$HOME/.nuget/plugins`.
