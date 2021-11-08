@@ -3,7 +3,7 @@ open System.Threading
 open NuGet.Common
 open NuGet.Configuration
 open NuGet.Credentials
-open NuGet.Protocol.Core.Types
+open NuGet.Protocol.Plugins
 
 let tryGetArg (name : string) (argv : string array) =
     let lowerName = name.ToLowerInvariant()
@@ -11,11 +11,11 @@ let tryGetArg (name : string) (argv : string array) =
     |> Seq.tryFindIndex
            (fun s ->
            let arg = s.ToLowerInvariant()
-           arg = sprintf "/%s" lowerName || arg = sprintf "-%s" lowerName
-           || arg = sprintf "--%s" lowerName)
+           arg = $"/%s{lowerName}" || arg = $"-%s{lowerName}"
+           || arg = $"--%s{lowerName}")
     |> Option.map (fun i ->
            if argv.Length > i + 1 then argv.[i + 1]
-           else failwithf "Argument for '%s' is missing" argv.[i])
+           else failwithf $"Argument for '%s{argv.[i]}' is missing")
 
 let handleAzureCredentials (givenUri:Uri) =
     let path =
@@ -28,8 +28,8 @@ let handleAzureCredentials (givenUri:Uri) =
         let singleLine = Environment.NewLine
         let doubleLine = singleLine + singleLine
         let uri = givenUri.ToString()
-        let command = sprintf "dotnet %s -uri %s" path uri
-        let instruction = sprintf "%sIn order to authenticate to %s you must first run:%s%s%s" doubleLine uri doubleLine command doubleLine
+        let command = $"dotnet %s{path} -uri %s{uri}"
+        let instruction = $"%s{doubleLine}In order to authenticate to %s{uri} you must first run:%s{doubleLine}%s{command}%s{doubleLine}"
         let divider = "    **********************************************************************"
         doubleLine
         + "ATTENTION: User interaction required." + singleLine
@@ -37,17 +37,17 @@ let handleAzureCredentials (givenUri:Uri) =
         + instruction
         + divider + doubleLine
 
-    printf """
-{ "Username" : "",
+    printf $"""
+{{ "Username" : "",
 "Password" : "",
-"Message" : "%s" }""" message
+"Message" : "%s{message}" }}"""
     exit 2
 
 let impl argv =
     Environment.SetEnvironmentVariable("DOTNET_HOST_PATH", "dotnet")
     let givenUri =
         match tryGetArg "uri" argv with
-        | Some givenUriStr -> System.Uri givenUriStr
+        | Some givenUriStr -> Uri givenUriStr
         | None -> failwithf "the -uri argument is required"
 
     let hasFlag (flag : string) =
@@ -92,10 +92,10 @@ let impl argv =
     match credentials with
     | Some credentials ->
         let credentials = credentials.GetCredential(givenUri, "Basic")
-        printfn """
-{ "Username" : "%s",
-"Password" : "%s",
-"Message" : "" }""" credentials.UserName credentials.Password
+        printfn $"""
+{{ "Username" : "%s{credentials.UserName}",
+"Password" : "%s{credentials.Password}",
+"Message" : "" }}"""
         0
     | None -> 1
 
@@ -105,7 +105,7 @@ let main argv =
         try
             impl argv
         with e ->
-            eprintf "Error: %O" e
+            eprintf $"Error: {e}"
             137
     finally
         Console.Out.Flush()
