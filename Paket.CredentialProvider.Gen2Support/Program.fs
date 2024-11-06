@@ -52,8 +52,8 @@ let impl argv =
 
     let hasFlag (flag : string) =
         argv |> Seq.exists (fun s -> s.Equals(flag, StringComparison.InvariantCultureIgnoreCase))
-    let nonInteractive = hasFlag "nonInteractive"
-    let isRetry = hasFlag "isRetry"
+    let nonInteractive = hasFlag "-nonInteractive"
+    let isRetry = hasFlag "-isRetry"
 
     let plugins =
         SecurePluginCredentialProviderBuilder(pluginManager = PluginManager.Instance, canShowDialog = true, logger = NullLogger.Instance)
