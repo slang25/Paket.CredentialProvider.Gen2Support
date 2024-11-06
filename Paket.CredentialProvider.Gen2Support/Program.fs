@@ -21,8 +21,8 @@ let handleAzureCredentials (givenUri:Uri) =
     let path =
         PluginManager.Instance.FindAvailablePluginsAsync(CancellationToken.None)
         |> Async.AwaitTask |> Async.RunSynchronously
-        |> Seq.map (fun p -> p.PluginFile.Path)
-        |> Seq.find (fun path -> path.EndsWith("CredentialProvider.Microsoft.dll"))
+        |> Seq.map (_.PluginFile.Path)
+        |> Seq.find (_.EndsWith("CredentialProvider.Microsoft.dll"))
     
     let message =
         let singleLine = Environment.NewLine
@@ -51,7 +51,7 @@ let impl argv =
         | None -> failwithf "the -uri argument is required"
 
     let hasFlag (flag : string) =
-        argv |> Seq.exists (fun s -> s.Equals(flag, StringComparison.InvariantCultureIgnoreCase))
+        argv |> Seq.exists (_.Equals(flag, StringComparison.InvariantCultureIgnoreCase))
     let nonInteractive = hasFlag "-nonInteractive"
     let isRetry = hasFlag "-isRetry"
 
@@ -110,33 +110,3 @@ let main argv =
     finally
         Console.Out.Flush()
         Console.Error.Flush()
-        
-//    // Example of talking to lower API, if this were to move into Paket I think we would drop down to this
-//    let credProviderPath = "/Users/stuart/Downloads/Microsoft.NetCore2.NuGet.CredentialProvider (1)/plugins/netcore/CredentialProvider.Microsoft"
-//    let startInfo = ProcessStartInfo(
-//                        "dotnet",
-//                        Arguments = credProviderPath + "/CredentialProvider.Microsoft.dll",
-//                        UseShellExecute = false,
-//                        RedirectStandardError = false,
-//                        RedirectStandardInput = true,
-//                        RedirectStandardOutput = true,
-//                        StandardOutputEncoding = UTF8Encoding(encoderShouldEmitUTF8Identifier = false)
-//                    )
-//
-//    let proc = Process.Start(startInfo)
-//    proc.Start() |> ignore
-//    let encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier = false)
-//    let standardInput = new StreamReader(Console.OpenStandardInput(), encoding)
-//    let standardOutput = new StreamWriter(Console.OpenStandardOutput(), encoding)
-//
-//    use sender = new Sender(standardOutput)
-//    use receiver = new StandardInputReceiver(standardInput)
-//
-//    sender.Connect()
-//    receiver.Connect()
-//    let message = Message("blah", MessageType.Request, MessageMethod.Handshake)
-//    sender.SendAsync(message, CancellationToken.None)
-//    |> Async.AwaitTask
-//    |> Async.RunSynchronously
-//
-//    0 // return an integer exit code
